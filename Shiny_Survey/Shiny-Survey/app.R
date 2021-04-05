@@ -1,49 +1,123 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(shinydashboard)
+library(magrittr)
+library(tidyverse)
+library(lubridate)
+library(DT)
+library(rsconnect)
+library(shinythemes)
+#-------------------------
+responsesDir <- file.path("responses")
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+fieldsMandatory <- c("clinic", 
+                     "pronouns", 
+                     "dependents", 
+                     "urg", 
+                     "ques1", 
+                     "ques2", 
+                     "ques3", 
+                     "ques4", 
+                     "ques5")
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
+labelMandatory <- function(label){
+  tagList(
+    label,
+    span("*", class = "mandatory_star")
+  )
+}
+appCSS <- ".mandatory_star {color:red; }"
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
-)
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+epochTime <- function(){
+  as.integer(Sys.time())
+}
+humanTime <- function(){
+  format(Sys.time(), "%Y%m%d")
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+
+
+
+shinyApp(
+  ui <- navbarPage("GIM Clinic Survey",
+                   theme = shinytheme("journal"),
+                   tabPanel("Likert Scale Intake",
+                            div(
+                              id = "form",
+                                  selectInput("clinic", labelMandatory("Suite"),
+                                              choices = c("Suite 5A",
+                                                          "Suite 5B",
+                                                          "Suite 5C",
+                                                          "Suite 6A",
+                                                          "Suite 6B",
+                                                          "Suite 6C")),
+                                  selectInput("pronouns", labelMandatory("Which pronouns do you identify with?"),
+                                              choices = c("He/Him/His",
+                                                          "She/Her/Hers",
+                                                          "They/Them",
+                                                          "Other")),
+                                  selectInput("dependents", labelMandatory("Do you have dependents at home?"),
+                                              choices = c("Yes","No")),
+                                  selectInput("urg", labelMandatory("Do you identify within an underrepresented group?"),
+                                              choices = c("Yes", "No")),
+                                  sliderInput("ques1", labelMandatory("How satisfied are you with how the nursing staff handles calls and messages?"),
+                                              min = 1, max = 5, value = 1),
+                                  sliderInput("ques2", labelMandatory("How satisfied are you with the process for completing forms when working remotely?"),
+                                              min = 1, max = 5, value = 1),
+                                  sliderInput("ques3", labelMandatory("How satisfied are you with your ability to reach team members for real time support when working remotely?"),
+                                              min = 1, max = 5, value = 1),
+                                  sliderInput("ques4", labelMandatory("How satisfied are you with your options for flexibility (e.g. shifting clinic days/times, choosing more/less telemedicine, reduction of cFTE)?"),
+                                              min = 1, max = 5, value = 1),
+                                  sliderInput("ques5", labelMandatory("How satisfied are you with your overall work-life balance?"),
+                                              min = 1, max = 5, value = 1),
+                                  actionButton("submit", "Submit", class = "btn-primary")
+                            )),
+                   tabPanel("Visualization",
+                            sidebarLayout(
+                              sidebarPanel(
+                                selectInput("grouping", "Select a Grouped Comparison to Display",
+                                            choices = c("By Clinic",
+                                                        "By Identified Pronouns",
+                                                        "By Dependents Y/N",
+                                                        "By Underrepresented Group Y/N")),
+                                
+                                selectInput("year", "Select A Year to Display",
+                                            choices = c(unique(year(formData$humanTime)))),
+                                
+                                selectInput("month", "Select a Month to Display",
+                                            choices = c(unique(month.name[month(formData$humanTime)])))),
+                              mainPanel()
+                            ))),
+
+server <- function(input, output, session) {
+  observe({
+    mandatoryFilled <-
+      vapply(fieldsMandatory,
+             function(x) {
+               !is.null(input[[x]]) && input[[x]] != ""
+             },
+             logical(1))
+    mandatoryFilled <- all(mandatoryFilled)
+    
+    shinyjs::toggleState(id = "submit", condition = mandatoryFilled)
+  })
+  formData <- reactive({
+    data <- sapply(fieldsMandatory, function(x) input[[x]])
+    data <- c(data, timestamp = humanTime)
+    data <- t(data)
+    data
+  })
+  saveData <- function(data){
+    fileName <- sprintf("%s_%s.csv",
+                        humanTime,
+                        digest::digest(data))
+    write.csv(x = data, file = file.path(responsesDir, fileName),
+              row.names = FALSE, quote = FALSE)
+  }
+  observeEvent(input$submit, {
+    saveData(formData())
+  })
+}
+)
+
