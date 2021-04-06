@@ -41,25 +41,11 @@ labelMandatory <- function(label){
 }
 appCSS <- ".mandatory_star {color:red; }"
 
-<<<<<<< HEAD
 #-U-I-------------------------------------------------
-=======
-
-epochTime <- function(){
-  as.integer(Sys.time())
-}
-humanTime <- function(){
-  format(Sys.time(), "%Y%m%d")
-}
-
-
-
-
-shinyApp(
->>>>>>> parent of bac4687 (Update app.R)
   ui <- navbarPage("GIM Clinic Survey",
                    theme = shinytheme("journal"),
                    tabPanel("Likert Scale Intake",
+                            DT::dataTableOutput("responsesTable"),
                             div(
                               id = "form",
                               selectInput("clinic", labelMandatory("Suite"),
@@ -90,7 +76,6 @@ shinyApp(
                                           min = 1, max = 5, value = 1),
                                   actionButton("submit", "Submit", class = "btn-primary")
                             )),
-<<<<<<< HEAD
                    # tabPanel("Visualization",
                    #          sidebarLayout(
                    #            sidebarPanel(
@@ -109,25 +94,6 @@ shinyApp(
                    #          ))
                    )
 #-S-E-R-V-E-R-------------------------------------------
-=======
-                   tabPanel("Visualization",
-                            sidebarLayout(
-                              sidebarPanel(
-                                selectInput("grouping", "Select a Grouped Comparison to Display",
-                                            choices = c("By Clinic",
-                                                        "By Identified Pronouns",
-                                                        "By Dependents Y/N",
-                                                        "By Underrepresented Group Y/N")),
-                                
-                                selectInput("year", "Select A Year to Display",
-                                            choices = c(unique(year(formData$humanTime)))),
-                                
-                                selectInput("month", "Select a Month to Display",
-                                            choices = c(unique(month.name[month(formData$humanTime)])))),
-                              mainPanel()
-                            ))),
-
->>>>>>> parent of bac4687 (Update app.R)
 server <- function(input, output, session) {
   observe({
     mandatoryFilled <-
@@ -156,7 +122,6 @@ server <- function(input, output, session) {
   observeEvent(input$submit, {
     saveData(formData())
   })
-<<<<<<< HEAD
   
   output$responsesTable <- DT::renderDataTable(
     loadData(),
@@ -201,9 +166,5 @@ server <- function(input, output, session) {
 
 
 
-=======
-}
-)
->>>>>>> parent of bac4687 (Update app.R)
 
 shinyApp(ui = ui, server = server)
