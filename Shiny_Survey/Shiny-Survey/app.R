@@ -36,13 +36,18 @@ humanTime <- function(){
   format(Sys.time(), "%Y%m%d")
 }
 
-
+loadData <- function(){
+  files <- list.files(file.path(responsesDir), full.names = TRUE)
+  data <- lapply(files, read.csv, stringsAsFactors = FALSE)
+  data <- do.call(rbind, data)
+}
 
 
 shinyApp(
   ui <- navbarPage("GIM Clinic Survey",
                    theme = shinytheme("journal"),
                    tabPanel("Likert Scale Intake",
+                            DT::dataTableOutput("responsesTable"),
                             div(
                               id = "form",
                                   selectInput("clinic", labelMandatory("Suite"),
@@ -72,23 +77,24 @@ shinyApp(
                                   sliderInput("ques5", labelMandatory("How satisfied are you with your overall work-life balance?"),
                                               min = 1, max = 5, value = 1),
                                   actionButton("submit", "Submit", class = "btn-primary")
-                            )),
-                   tabPanel("Visualization",
-                            sidebarLayout(
-                              sidebarPanel(
-                                selectInput("grouping", "Select a Grouped Comparison to Display",
-                                            choices = c("By Clinic",
-                                                        "By Identified Pronouns",
-                                                        "By Dependents Y/N",
-                                                        "By Underrepresented Group Y/N")),
-                                
-                                selectInput("year", "Select A Year to Display",
-                                            choices = c(unique(year(formData$humanTime)))),
-                                
-                                selectInput("month", "Select a Month to Display",
-                                            choices = c(unique(month.name[month(formData$humanTime)])))),
-                              mainPanel()
-                            ))),
+                            ))
+                   # tabPanel("Visualization",
+                   #          sidebarLayout(
+                   #            sidebarPanel(
+                   #              selectInput("grouping", "Select a Grouped Comparison to Display",
+                   #                          choices = c("By Clinic",
+                   #                                      "By Identified Pronouns",
+                   #                                      "By Dependents Y/N",
+                   #                                      "By Underrepresented Group Y/N")),
+                   #              
+                   #              selectInput("year", "Select A Year to Display",
+                   #                          choices = c(unique(year(responsesTable$humanTime)))),
+                   #              
+                   #              selectInput("month", "Select a Month to Display",
+                   #                          choices = c(unique(month.name[month(responsesTable$humanTime)])))),
+                   #            mainPanel()
+                   #          ))
+                   ),
 
 server <- function(input, output, session) {
   observe({
@@ -118,6 +124,12 @@ server <- function(input, output, session) {
   observeEvent(input$submit, {
     saveData(formData())
   })
-}
-)
+  
+  output$responsesTable <- DT::renderDataTable(
+    loadData(),
+    rownames = FALSE,
+    options = list(searching = FALSE, lengthChange = FALSE)
+  )
+
+})
 
