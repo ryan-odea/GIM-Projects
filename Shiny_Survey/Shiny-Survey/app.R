@@ -6,19 +6,32 @@ library(lubridate)
 library(DT)
 library(rsconnect)
 library(shinythemes)
+library(likert)
 #-------------------------
-responsesDir <- file.path("responses")
+likert_levels <- c("Very Disatisfied",
+                   "Disatisfied",
+                   "Neutral",
+                   "Satisfied",
+                   "Very Satisfied")
 
 
-fieldsMandatory <- c("clinic", 
-                     "pronouns", 
-                     "dependents", 
-                     "urg", 
-                     "ques1", 
-                     "ques2", 
-                     "ques3", 
-                     "ques4", 
-                     "ques5")
+
+
+#-G-L-O-B-A-L----------------------------------------
+save_data <- function(data){
+  data <- as.data.frame(t(data))
+  if (exists("responses")){
+    responses <<- rbind(responses, data)
+  } else {
+    responses <<-data
+  }
+}
+
+load_data <- function(){
+  if (exists("responses")){
+    responses
+  }
+}
 
 labelMandatory <- function(label){
   tagList(
@@ -28,56 +41,41 @@ labelMandatory <- function(label){
 }
 appCSS <- ".mandatory_star {color:red; }"
 
-
-epochTime <- function(){
-  as.integer(Sys.time())
-}
-humanTime <- function(){
-  format(Sys.time(), "%Y%m%d")
-}
-
-loadData <- function(){
-  files <- list.files(file.path(responsesDir), full.names = TRUE)
-  data <- lapply(files, read.csv, stringsAsFactors = FALSE)
-  data <- do.call(rbind, data)
-}
-
-
-shinyApp(
+#-U-I-------------------------------------------------
   ui <- navbarPage("GIM Clinic Survey",
                    theme = shinytheme("journal"),
                    tabPanel("Likert Scale Intake",
                             DT::dataTableOutput("responsesTable"),
                             div(
                               id = "form",
-                                  selectInput("clinic", labelMandatory("Suite"),
+                              selectInput("clinic", labelMandatory("Suite"),
                                               choices = c("Suite 5A",
                                                           "Suite 5B",
                                                           "Suite 5C",
                                                           "Suite 6A",
                                                           "Suite 6B",
                                                           "Suite 6C")),
-                                  selectInput("pronouns", labelMandatory("Which pronouns do you identify with?"),
-                                              choices = c("He/Him/His",
-                                                          "She/Her/Hers",
-                                                          "They/Them",
-                                                          "Other")),
-                                  selectInput("dependents", labelMandatory("Do you have dependents at home?"),
-                                              choices = c("Yes","No")),
-                                  selectInput("urg", labelMandatory("Do you identify within an underrepresented group?"),
-                                              choices = c("Yes", "No")),
-                                  sliderInput("ques1", labelMandatory("How satisfied are you with how the nursing staff handles calls and messages?"),
-                                              min = 1, max = 5, value = 1),
-                                  sliderInput("ques2", labelMandatory("How satisfied are you with the process for completing forms when working remotely?"),
-                                              min = 1, max = 5, value = 1),
-                                  sliderInput("ques3", labelMandatory("How satisfied are you with your ability to reach team members for real time support when working remotely?"),
-                                              min = 1, max = 5, value = 1),
-                                  sliderInput("ques4", labelMandatory("How satisfied are you with your options for flexibility (e.g. shifting clinic days/times, choosing more/less telemedicine, reduction of cFTE)?"),
-                                              min = 1, max = 5, value = 1),
-                                  sliderInput("ques5", labelMandatory("How satisfied are you with your overall work-life balance?"),
-                                              min = 1, max = 5, value = 1),
+                              selectInput("pronouns", labelMandatory("Which pronouns do you identify with?"),
+                                          choices = c("He/Him/His",
+                                                      "She/Her/Hers",
+                                                      "They/Them",
+                                                      "Other")),
+                              selectInput("dependents", labelMandatory("Do you have dependents at home?"),
+                                          choices = c("Yes","No")),
+                              selectInput("urg", labelMandatory("Do you identify within an underrepresented group?"),
+                                          choices = c("Yes", "No")),
+                              sliderInput("ques1", labelMandatory("How satisfied are you with how the nursing staff handles calls and messages?"),
+                                          min = 1, max = 5, value = 1),
+                              sliderInput("ques2", labelMandatory("How satisfied are you with the process for completing forms when working remotely?"),
+                                          min = 1, max = 5, value = 1),
+                              sliderInput("ques3", labelMandatory("How satisfied are you with your ability to reach team members for real time support when working remotely?"),
+                                          min = 1, max = 5, value = 1),
+                              sliderInput("ques4", labelMandatory("How satisfied are you with your options for flexibility (e.g. shifting clinic days/times, choosing more/less telemedicine, reduction of cFTE)?"),
+                                          min = 1, max = 5, value = 1),
+                              sliderInput("ques5", labelMandatory("How satisfied are you with your overall work-life balance?"),
+                                          min = 1, max = 5, value = 1),
                                   actionButton("submit", "Submit", class = "btn-primary")
-                            ))
+                            )),
                    # tabPanel("Visualization",
                    #          sidebarLayout(
                    #            sidebarPanel(
@@ -86,16 +84,16 @@ shinyApp(
                    #                                      "By Identified Pronouns",
                    #                                      "By Dependents Y/N",
                    #                                      "By Underrepresented Group Y/N")),
-                   #              
+                   # 
                    #              selectInput("year", "Select A Year to Display",
                    #                          choices = c(unique(year(responsesTable$humanTime)))),
-                   #              
+                   # 
                    #              selectInput("month", "Select a Month to Display",
                    #                          choices = c(unique(month.name[month(responsesTable$humanTime)])))),
                    #            mainPanel()
                    #          ))
-                   ),
-
+                   )
+#-S-E-R-V-E-R-------------------------------------------
 server <- function(input, output, session) {
   observe({
     mandatoryFilled <-
@@ -130,6 +128,43 @@ server <- function(input, output, session) {
     rownames = FALSE,
     options = list(searching = FALSE, lengthChange = FALSE)
   )
+  
+}
 
-})
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+shinyApp(ui = ui, server = server)
