@@ -28,7 +28,7 @@ likert_lables <- c("Very Disatisfied",
                    "Disatisfied",
                    "Neutral",
                    "Satisfied",
-                   "Very Disatisfied")
+                   "Very Satisfied")
 
 responses[, c("Clinic",
               "pronouns",
@@ -42,8 +42,9 @@ for (i in questions){
 
 
 # Plotting -------------------------------------------------------------------
-## Clinic --------------------------------------------------------------------
-### Bar Chart ----------------------------------------------------------------
+## Bar Chart ----------------------------------------------------------------
+### Clinic --------------------------------------------------------------------
+
 ques1 <- responses %>%
   filter(year == year_to_observe & month == single_month_observation) %>%
   ggplot(aes(y = calls_msgs, fill = Clinic)) + 
@@ -316,4 +317,321 @@ ques5 <- responses %>%
 clinicarrangement <- grid.arrange(ques1, ques2, ques3, ques4, ques5, ncol = 2, top = "Sorted by Under-Represented Group Y/N")
 ggsave("urg_bar.png", clinicarrangement, width = 16, height = 24, dpi = 400)
 
-print("Done!")
+## Violins ------------------------------------------------------------------
+### Re- Uptake --------------------------------------------------------------
+responses <- fread("survey_responses.csv") %>% as.data.frame()
+responses$Timestamp %<>% mdy_hms()
+responses$year <- year(responses$Timestamp)
+responses$month <- factor(month.name[month(responses$Timestamp)], levels = month.name)
+
+responses[, c("Clinic",
+              "pronouns",
+              "depends",
+              "urg")] %<>% lapply(., factor)
+
+### Clinics -----------------------------------------------------------------
+
+ques1 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = calls_msgs, x = month, fill = Clinic)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nHow the nursing staff handles calls and messages?",
+       x = paste0("Year of", year_to_observe),
+       y = "Count",
+       fill = "Clinic") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("Clinic_violin_ques1.png", ques1, width = 24, height = 16, dpi = 400)
+
+ques2 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = remote_forms, x = month, fill = Clinic)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) + 
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nThe process for completing forms when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Clinic") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("Clinic_violin_ques2.png", ques2, width = 24, height = 16, dpi = 400)
+
+ques3 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = real_time_support, x = month, fill = Clinic)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nYour ability to reach team members for real time support when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Clinic") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("Clinic_violin_ques3.png", ques3, width = 24, height = 16, dpi = 400)
+
+ques4 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = flexibility, x = month, fill = Clinic)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour options for flexibility?",
+       x = "",
+       y = "Count",
+       fill = "Clinic") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("Clinic_violin_ques4.png", ques4, width = 24, height = 16, dpi = 400)
+
+ques5 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = work_life, x = month, fill = Clinic)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour overall work-life balance?",
+       x = "",
+       y = "Count",
+       fill = "Clinic") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("Clinic_violin_ques5.png", ques5, width = 24, height = 16, dpi = 400)
+### Pronouns ----------------------------------------------------------------
+
+ques1 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = calls_msgs, x = month, fill = pronouns)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nHow the nursing staff handles calls and messages?",
+       x = paste0("Year of", year_to_observe),
+       y = "Count",
+       fill = "Pronouns") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("pronouns_violin_ques1.png", ques1, width = 24, height = 16, dpi = 400)
+
+ques2 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = remote_forms, x = month, fill = pronouns)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) + 
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nThe process for completing forms when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Pronouns") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("pronouns_violin_ques2.png", ques2, width = 24, height = 16, dpi = 400)
+
+ques3 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = real_time_support, x = month, fill = pronouns)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nYour ability to reach team members for real time support when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Pronouns") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("pronouns_violin_ques3.png", ques3, width = 24, height = 16, dpi = 400)
+  
+ques4 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = flexibility, x = month, fill = pronouns)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour options for flexibility?",
+       x = "",
+       y = "Count",
+       fill = "Pronouns") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("pronouns_violin_ques4.png", ques4, width = 24, height = 16, dpi = 400)
+  
+ques5 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = work_life, x = month, fill = pronouns)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour overall work-life balance?",
+       x = "",
+       y = "Count",
+       fill = "Pronouns") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("pronouns_violin_ques5.png", ques5, width = 24, height = 16, dpi = 400)
+
+### Dependents --------------------------------------------------------------
+
+ques1 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = calls_msgs, x = month, fill = depends)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nHow the nursing staff handles calls and messages?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("depends_violin_ques1.png", ques1, width = 24, height = 16, dpi = 400)
+
+ques2 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = remote_forms, x = month, fill = depends)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) + 
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nThe process for completing forms when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("depends_violin_ques2.png", ques2, width = 24, height = 16, dpi = 400)
+
+ques3 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = real_time_support, x = month, fill = depends)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nYour ability to reach team members for real time support when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("depends_violin_ques3.png", ques3, width = 24, height = 16, dpi = 400)
+
+ques4 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = flexibility, x = month, fill = depends)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour options for flexibility?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("depends_violin_ques4.png", ques4, width = 24, height = 16, dpi = 400)
+
+ques5 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = work_life, x = month, fill = depends)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour overall work-life balance?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("depends_violin_ques5.png", ques5, width = 24, height = 16, dpi = 400)
+
+### URG ---------------------------------------------------------------------
+
+ques1 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = calls_msgs, x = month, fill = urg)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nHow the nursing staff handles calls and messages?",
+       x = "",
+       y = "Count",
+       fill = "Under-Represented Group Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("urg_violin_ques1.png", ques1, width = 24, height = 16, dpi = 400)
+
+ques2 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = remote_forms, x = month, fill = urg)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) + 
+  theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nThe process for completing forms when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("urg_violin_ques2.png", ques2, width = 24, height = 16, dpi = 400)
+
+ques3 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = real_time_support, x = month, fill = urg)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nYour ability to reach team members for real time support when working remotely?",
+       x = "",
+       y = "Count",
+       fill = "Dependents Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("urg_violin_ques3.png", ques3, width = 24, height = 16, dpi = 400)
+
+ques4 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = flexibility, x = month, fill = urg)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour options for flexibility?",
+       x = "",
+       y = "Count",
+       fill = "Under-Represented Group Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("urg_violin_ques4.png", ques4, width = 24, height = 16, dpi = 400)
+
+ques5 <- responses %>%
+  filter(year == year_to_observe) %>%
+  ggplot(aes(y = work_life, x = month, fill = urg)) + 
+  geom_violin(position = "dodge") + 
+  geom_jitter(alpha = .5) + 
+  scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+theme_fivethirtyeight() + 
+  labs(title = "How satisfied are you with:\nyour overall work-life balance?",
+       x = "",
+       y = "Count",
+       fill = "Under-Represented Group Y/N") + 
+  scale_fill_brewer(palette = "Set2") + 
+  theme(plot.title = element_text(size = 14, hjust = .5))
+ggsave("urg_violin_ques5.png", ques5, width = 24, height = 16, dpi = 400)
