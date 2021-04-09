@@ -83,14 +83,13 @@ server <-   function(input, output) {
     user_data() %>%
       filter(year == input$year) %>%
       ggplot(aes(y = calls_msgs, x = month)) + 
-      geom_violin(aes_string(fill  = input$grouping), position = "dodge") + 
-      geom_jitter(alpha = .5) + 
-      scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+      geom_violin(aes_string(fill  = input$grouping)) + 
+      scale_y_discrete(limits = factor(c(1:5)), labels = likert_lables) +
       theme_fivethirtyeight() + 
       labs(title = "How satisfied are you with:\nHow the nursing staff handles calls and messages?",
            fill = paste(input$grouping)) + 
       scale_fill_brewer(palette = "Set2") + 
-      theme(plot.title = element_text(size = 14, hjust = .5))
+      theme(plot.title = element_text(size = 14, hjust = .5)) 
   })
   
   output$ques2 <- renderPlot({
@@ -98,9 +97,8 @@ server <-   function(input, output) {
     user_data() %>%
       filter(year == input$year) %>%
       ggplot(aes(y = remote_forms, x = month)) + 
-      geom_violin(aes_string(fill  = input$grouping), position = "dodge") + 
-      geom_jitter(alpha = .5) + 
-      scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+      geom_violin(aes_string(fill  = input$grouping)) + 
+      scale_y_discrete(limits = factor(c(1:5)), labels = likert_lables) +
       theme_fivethirtyeight() + 
       labs(title = "How satisfied are you with:\nThe process for completing forms when working remotely?",
            fill = paste(input$grouping)) + 
@@ -113,9 +111,8 @@ server <-   function(input, output) {
     user_data() %>%
       filter(year == input$year) %>%
       ggplot(aes(y = real_time_support, x = month)) + 
-      geom_violin(aes_string(fill  = input$grouping), position = "dodge") + 
-      geom_jitter(alpha = .5) + 
-      scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+      geom_violin(aes_string(fill  = input$grouping)) + 
+      scale_y_discrete(limits = factor(c(1:5)), labels = likert_lables) +
       theme_fivethirtyeight() + 
       labs(title = "How satisfied are you with:\nYour ability to reach team members for real time support when working remotely?",
            fill = paste(input$grouping)) + 
@@ -128,14 +125,14 @@ server <-   function(input, output) {
     user_data() %>%
       filter(year == input$year) %>%
       ggplot(aes(y = flexibility, x = month)) + 
-      geom_violin(aes_string(fill  = input$grouping), position = "dodge") + 
-      geom_jitter(alpha = .5) + 
-      scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+      geom_violin(aes_string(fill  = input$grouping)) + 
+      scale_y_discrete(limits = factor(c(1:5)), labels = likert_lables) +
       theme_fivethirtyeight() + 
       labs(title = "How satisfied are you with:\nyour options for flexibility?",
            fill = paste(input$grouping)) + 
       scale_fill_brewer(palette = "Set2") + 
       theme(plot.title = element_text(size = 14, hjust = .5))
+
   })
   
   output$ques5 <- renderPlot({
@@ -143,15 +140,16 @@ server <-   function(input, output) {
     user_data() %>%
       filter(year == input$year) %>%
       ggplot(aes(y = work_life, x = month)) + 
-      geom_violin(aes_string(fill  = input$grouping), position = "dodge") + 
-      geom_jitter(alpha = .5) + 
-      scale_y_discrete(limits = c(1:5), labels = likert_lables) +
+      geom_violin(aes_string(fill  = input$grouping)) +  
+      scale_y_discrete(limits = factor(c(1:5)), labels = likert_lables) +
       theme_fivethirtyeight() + 
       labs(title = "How satisfied are you with:\nyour overall work-life balance?",
            fill = paste(input$grouping)) + 
       scale_fill_brewer(palette = "Set2") + 
       theme(plot.title = element_text(size = 14, hjust = .5))
+    
   })
+  
   
 }
 
