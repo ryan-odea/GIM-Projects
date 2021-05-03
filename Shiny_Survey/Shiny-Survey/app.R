@@ -90,7 +90,7 @@ server <-   function(input, output) {
         ) %>% 
         filter(year == input$year)
       
-      dataframe
+      return(dataframe)
     }
   })
 
@@ -338,11 +338,11 @@ server <-   function(input, output) {
     req(user_data())
     if(paste(input$month) == "No Filter"){
       if(paste(input$grouping) == "No Filter"){
-        userdata() %>%
-          filter(year == input$year)
+        user_data() %>%
+          filter(year == input$year) %>%
           summarise(across(c(calls_msgs, remote_forms, real_time_support, flexibility, work_life), list(mean)))
       } else{
-        userdata() %>%
+        user_data() %>%
           filter(year == input$year) %>%
           group_by_at(input$grouping) %>%
           summarise(across(c(calls_msgs, remote_forms, real_time_support, flexibility, work_life), list(mean)))
